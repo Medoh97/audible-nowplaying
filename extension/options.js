@@ -2,8 +2,8 @@ const FIELDS = ['token', 'owner', 'repo', 'branch', 'path'];
 
 const DEFAULTS = {
   token: '',
-  owner: 'Medoh97',
-  repo: 'audible-nowplaying',
+  owner: '',
+  repo: '',
   branch: 'main',
   path: 'nowplaying.json',
 };

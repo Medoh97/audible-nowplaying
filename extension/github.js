@@ -8,8 +8,8 @@
   async function settings() {
     return chrome.storage.local.get({
       token: '',
-      owner: 'Medoh97',
-      repo: 'audible-nowplaying',
+      owner: '',
+      repo: '',
       branch: 'main',
       path: 'nowplaying.json',
     });
