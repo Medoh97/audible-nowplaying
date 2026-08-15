@@ -55,11 +55,7 @@
     // product link, then from the cover image filename.
     asin() {
       const url = new URL(location.href);
-      const q =
-        url.searchParams.get('asin') ||
-        url.searchParams.get('contentDeliveryType') === null
-          ? url.searchParams.get('asin')
-          : null;
+      const q = url.searchParams.get('asin');
       if (q && /^[A-Z0-9]{10}$/.test(q)) return q;
 
       const path = location.pathname.match(/\/pd\/[^/]*\/([A-Z0-9]{10})/);
