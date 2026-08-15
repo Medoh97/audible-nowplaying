@@ -21,10 +21,23 @@ async function settings() {
 
 // Audible's own catalog endpoint. No login needed for the basic fields, and it
 // gives cleaner data than scraping a product page, so we prefer it when it works.
+// Audible runs a separate site and API per country. Follow whichever one the
+// player is actually on, or a .ca listener gets .com results (or nothing).
+function apiHostFor(sourceUrl) {
+  try {
+    const host = new URL(sourceUrl).hostname; // www.audible.ca
+    const domain = host.replace(/^(www|m)\./, ''); // audible.ca
+    return `api.${domain}`;
+  } catch (e) {
+    return 'api.audible.com';
+  }
+}
+
 async function enrich(snap) {
   if (!snap.asin) return snap;
   const groups = 'media,product_desc,product_attrs,contributors,series';
-  const url = `https://api.audible.com/1.0/catalog/products/${snap.asin}?response_groups=${groups}&image_sizes=500,1024`;
+  const host = apiHostFor(snap.source_url);
+  const url = `https://${host}/1.0/catalog/products/${snap.asin}?response_groups=${groups}&image_sizes=500,1024`;
 
   try {
     const res = await fetch(url);
