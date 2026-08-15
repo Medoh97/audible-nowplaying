@@ -8,16 +8,16 @@
     "book": null
   },
   "cover": "https://m.media-amazon.com/images/I/81nPwPrfwpL._SL1024_.jpg",
-  "summary": null,
-  "chapter": "Chapter Two: Lesson Two: Why Teach Financial Literacy?",
-  "position_sec": 5825,
-  "chapter_remaining_sec": 16349,
-  "book_remaining_sec": 1420320,
+  "summary": "Audiobook by Robert T. Kiyosaki, narrated by Tim Wheeler. Start listening to Rich Dad Poor Dad on Audible.",
+  "chapter": null,
+  "position_sec": null,
+  "chapter_remaining_sec": null,
+  "book_remaining_sec": null,
   "speed": 1,
-  "playing": true,
-  "source_url": "https://www.audible.ca/webplayer?asin=B0725DXWSW&contentDeliveryType=SinglePartBook&isSample=false&ref_=a_minerva_cloudplayer_B0725DXWSW&overrideLph=false&initialCPLaunch=true",
+  "playing": false,
+  "source_url": "https://www.audible.ca/pd/Rich-Dad-Poor-Dad-Audiobook/B0725DXWSW?ref_pageloadid=not_applicable&pf_rd_p=9262d717-a682-4b54-8e37-a6039fe5956e&pf_rd_r=4NX33K5VVHA4ZG3GCQEX&plink=mXJXxeoR1z4cGTrx&pageLoadId=HfGov63aIqJONQZI&creativeId=4ee810cf-ac8e-4eeb-8b79-40e176d0a225&ref=a_library_t_c5_libItem_B0725DXWSW_0",
   "subtitle": "What the Rich Teach Their Kids About Money - That the Poor and Middle Class Do Not!",
   "runtime_sec": 22140,
   "release_date": "2012-06-15",
-  "updated": "2026-08-15T10:21:04.826Z"
+  "updated": "2026-08-15T10:22:07.751Z"
 }
