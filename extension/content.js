@@ -76,13 +76,12 @@
     note(`reading: ${snap.title}${snap.chapter ? ' - ' + snap.chapter : ''}`);
     if (!force && !meaningfulChange(snap)) return;
 
-    chrome.runtime
-      .sendMessage({ type: 'nowplaying', payload: snap })
-      .then((res) => {
-        // Only call it sent once it really went out. If the worker turned us
-        // down for being too soon, leave lastSent alone and the next tick
-        // offers it again.
-        if (res && res.ok) {
+    // Push from here rather than handing it to the service worker. Only mark it
+    // sent once it really went out — if it was too soon, the next tick offers
+    // the same snapshot again.
+    self.NowPlayingGitHub.push(snap)
+      .then((sent) => {
+        if (sent) {
           lastSent = snap;
           lastSentAt = Date.now();
         }

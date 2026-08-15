@@ -181,7 +181,7 @@ async function inject(tabId) {
   try {
     await chrome.scripting.executeScript({
       target: { tabId, allFrames: true },
-      files: ['selectors.js', 'content.js'],
+      files: ['selectors.js', 'github.js', 'content.js'],
     });
   } catch (e) {
     // Tab closed mid-flight, or a frame we're not allowed into. Not fatal.
