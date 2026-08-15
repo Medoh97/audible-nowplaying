@@ -190,11 +190,22 @@ async function inject(tabId) {
 }
 
 async function injectAllOpenTabs() {
-  const tabs = await chrome.tabs.query({ url: AUDIBLE_TABS });
+  // Record that the worker woke up before doing anything that can throw, so a
+  // failure here shows up as a message instead of as silence.
   await chrome.storage.local.set({
-    lastSweep: { at: new Date().toISOString(), count: tabs.length },
+    lastSweep: { at: new Date().toISOString(), count: -1, note: 'worker started' },
   });
-  for (const t of tabs) inject(t.id);
+  try {
+    const tabs = await chrome.tabs.query({ url: AUDIBLE_TABS });
+    await chrome.storage.local.set({
+      lastSweep: { at: new Date().toISOString(), count: tabs.length },
+    });
+    for (const t of tabs) inject(t.id);
+  } catch (e) {
+    await chrome.storage.local.set({
+      lastSweep: { at: new Date().toISOString(), count: -1, note: String(e.message) },
+    });
+  }
 }
 
 chrome.runtime.onInstalled.addListener(injectAllOpenTabs);
