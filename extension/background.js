@@ -180,7 +180,7 @@ const AUDIBLE_TABS = [
 async function inject(tabId) {
   try {
     await chrome.scripting.executeScript({
-      target: { tabId, allFrames: true },
+      target: { tabId, allFrames: false },
       files: ['selectors.js', 'github.js', 'content.js'],
     });
   } catch (e) {

@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Audible Now Playing",
-  "version": "0.5.0",
+  "version": "0.5.1",
   "description": "Grabs what you're listening to on Audible and keeps a JSON file on GitHub up to date with it.",
   "permissions": [
     "storage",
@@ -42,7 +42,7 @@
         "content.js"
       ],
       "run_at": "document_idle",
-      "all_frames": true
+      "all_frames": false
     }
   ],
   "options_page": "options.html",

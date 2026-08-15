@@ -107,8 +107,13 @@
         }),
       });
 
-    let res = await put(await currentSha(cfg));
-    if (res.status === 409) res = await put(await currentSha(cfg)); // someone moved it, retry once
+    // A 409 means the file moved between our read and our write. Re-read the
+    // sha and try again rather than giving up on the first collision.
+    let res;
+    for (let attempt = 0; attempt < 4; attempt++) {
+      res = await put(await currentSha(cfg));
+      if (res.status !== 409) break;
+    }
     if (!res.ok) throw new Error(`write ${res.status} ${(await res.text()).slice(0, 120)}`);
 
     await chrome.storage.local.set({

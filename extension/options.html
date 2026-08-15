@@ -41,7 +41,15 @@
     <h1>Audible Now Playing</h1>
 
     <label>GitHub token (fine-grained, Contents: read &amp; write on this one repo)</label>
-    <input id="token" type="password" placeholder="github_pat_..." />
+    <input
+      id="token"
+      type="text"
+      autocomplete="off"
+      autocorrect="off"
+      spellcheck="false"
+      placeholder="github_pat_..."
+    />
+    <div id="tokenState" style="font-size: 11px; color: #9aa0a6; margin-top: 4px"></div>
 
     <label>Owner</label>
     <input id="owner" />

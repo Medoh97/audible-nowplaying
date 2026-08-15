@@ -8,6 +8,10 @@
   if (window.__nowplayingLoaded) return;
   window.__nowplayingLoaded = true;
 
+  // Only the top document. Every iframe used to run this too, and they raced
+  // each other writing the same file, which GitHub rejects as a conflict.
+  if (window.top !== window.self) return;
+
   const D = self.AudibleDom;
   const POLL_MS = 5000; // how often we look at the page
   const DRIFT_S = 60; // push a refresh if the position has moved this far
