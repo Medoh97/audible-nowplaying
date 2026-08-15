@@ -53,11 +53,15 @@
     const keys = ['asin', 'title', 'chapter', 'playing'];
     if (keys.some((k) => JSON.stringify(lastSent[k]) !== JSON.stringify(next[k]))) return true;
 
+    // A field that was missing and now has a value is worth publishing — the
+    // player often isn't ready to report times on the first read.
+    const timings = ['position_sec', 'book_remaining_sec', 'chapter_position_sec'];
+    if (timings.some((k) => (lastSent[k] == null) !== (next[k] == null))) return true;
+
     const a = lastSent.position_sec;
     const b = next.position_sec;
     if (a == null || b == null) return false;
-    if (Math.abs(b - a) > DRIFT_S) return true;
-    return false;
+    return Math.abs(b - a) > DRIFT_S;
   }
 
   // Leaves a breadcrumb the popup can show, so "nothing happened" tells you
