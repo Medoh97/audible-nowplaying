@@ -107,16 +107,32 @@
         }),
       });
 
-    // A 409 means the file moved between our read and our write. Re-read the
-    // sha and try again rather than giving up on the first collision.
-    let res;
-    for (let attempt = 0; attempt < 4; attempt++) {
-      res = await put(await currentSha(cfg));
-      if (res.status !== 409) break;
-    }
-    if (!res.ok) throw new Error(`write ${res.status} ${(await res.text()).slice(0, 120)}`);
+    // GitHub hands back the new sha on every successful write, and that value
+    // is authoritative straight away. Re-reading it instead can return a stale
+    // one for a second or two, which then gets rejected as a conflict - so
+    // prefer the remembered sha and only go back to the API when we have none.
+    const remembered = (await chrome.storage.local.get({ lastSha: null })).lastSha;
 
+    let res;
+    let sha = remembered || (await currentSha(cfg));
+    for (let attempt = 0; attempt < 5; attempt++) {
+      res = await put(sha);
+      if (res.status !== 409) break;
+
+      // Someone else wrote in between. Back off so the read catches up, then
+      // take a fresh sha.
+      await new Promise((r) => setTimeout(r, 400 * (attempt + 1)));
+      sha = await currentSha(cfg);
+    }
+
+    if (!res.ok) {
+      await chrome.storage.local.remove('lastSha');
+      throw new Error(`write ${res.status} ${(await res.text()).slice(0, 120)}`);
+    }
+
+    const written = await res.json().catch(() => null);
     await chrome.storage.local.set({
+      lastSha: written && written.content ? written.content.sha : null,
       lastCommit: { at: new Date().toISOString(), label, ok: true },
     });
     return true;
