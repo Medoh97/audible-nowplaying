@@ -159,3 +159,51 @@ function schedule(snap) {
 chrome.runtime.onMessage.addListener((msg) => {
   if (msg && msg.type === 'nowplaying') schedule(msg.payload);
 });
+
+// --- injection -------------------------------------------------------------
+// The manifest already declares the content script, but that only covers pages
+// loaded *after* the extension starts. Pushing it in ourselves means reloading
+// the extension picks up the Audible tabs you already have open, and we're not
+// at the mercy of when Chrome decides to register the declared script.
+
+const AUDIBLE_TABS = [
+  'https://*.audible.com/*',
+  'https://*.audible.ca/*',
+  'https://*.audible.co.uk/*',
+  'https://*.audible.com.au/*',
+  'https://*.audible.de/*',
+  'https://*.audible.fr/*',
+  'https://*.audible.it/*',
+  'https://*.audible.es/*',
+  'https://*.audible.co.jp/*',
+  'https://*.audible.in/*',
+];
+
+async function inject(tabId) {
+  try {
+    await chrome.scripting.executeScript({
+      target: { tabId, allFrames: true },
+      files: ['selectors.js', 'content.js'],
+    });
+  } catch (e) {
+    // Tab closed mid-flight, or a frame we're not allowed into. Not fatal.
+    console.debug('inject skipped', tabId, e.message);
+  }
+}
+
+async function injectAllOpenTabs() {
+  const tabs = await chrome.tabs.query({ url: AUDIBLE_TABS });
+  await chrome.storage.local.set({
+    lastSweep: { at: new Date().toISOString(), count: tabs.length },
+  });
+  for (const t of tabs) inject(t.id);
+}
+
+chrome.runtime.onInstalled.addListener(injectAllOpenTabs);
+chrome.runtime.onStartup.addListener(injectAllOpenTabs);
+injectAllOpenTabs();
+
+chrome.tabs.onUpdated.addListener((tabId, info, tab) => {
+  if (info.status !== 'complete' || !tab.url) return;
+  if (/^https:\/\/[^/]*audible\.[a-z.]+\//.test(tab.url)) inject(tabId);
+});

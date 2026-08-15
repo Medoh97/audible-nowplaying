@@ -9,9 +9,14 @@ const DEFAULTS = {
 };
 
 function showStatus() {
-  chrome.storage.local.get({ lastCommit: null, lastScan: null }, ({ lastCommit, lastScan }) => {
+  const keys = { lastCommit: null, lastScan: null, lastSweep: null };
+  chrome.storage.local.get(keys, ({ lastCommit, lastScan, lastSweep }) => {
     const el = document.getElementById('status');
     const lines = [];
+
+    if (lastSweep) {
+      lines.push(`Found ${lastSweep.count} Audible tab(s) on last check.`);
+    }
 
     if (lastScan) {
       const when = new Date(lastScan.at).toLocaleTimeString();

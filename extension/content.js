@@ -3,6 +3,11 @@
 // only thing that talks to GitHub.
 
 (function () {
+  // We get injected two ways (declared in the manifest, and pushed in by the
+  // service worker for tabs that were already open). Only run once.
+  if (window.__nowplayingLoaded) return;
+  window.__nowplayingLoaded = true;
+
   const D = self.AudibleDom;
   const POLL_MS = 5000; // how often we look at the page
   const DRIFT_S = 60; // push a refresh if the position has moved this far
