@@ -9,17 +9,31 @@ const DEFAULTS = {
 };
 
 function showStatus() {
-  chrome.storage.local.get({ lastCommit: null }, ({ lastCommit }) => {
+  chrome.storage.local.get({ lastCommit: null, lastScan: null }, ({ lastCommit, lastScan }) => {
     const el = document.getElementById('status');
-    if (!lastCommit) {
-      el.textContent = 'Nothing pushed yet. Open the Audible web player and hit play.';
-      return;
+    const lines = [];
+
+    if (lastScan) {
+      const when = new Date(lastScan.at).toLocaleTimeString();
+      lines.push(`Page ${when}: ${lastScan.why}`);
+    } else {
+      lines.push('Never saw an Audible page. Open the player and reload it.');
     }
-    const when = new Date(lastCommit.at).toLocaleTimeString();
-    el.className = lastCommit.ok ? '' : 'bad';
-    el.textContent = lastCommit.ok
-      ? `Last push ${when}: ${lastCommit.label}`
-      : `Last push failed ${when}: ${lastCommit.label}`;
+
+    if (lastCommit) {
+      const when = new Date(lastCommit.at).toLocaleTimeString();
+      lines.push(
+        lastCommit.ok
+          ? `Push ${when}: ${lastCommit.label}`
+          : `Push FAILED ${when}: ${lastCommit.label}`
+      );
+      el.className = lastCommit.ok ? '' : 'bad';
+    } else {
+      lines.push('Nothing pushed yet.');
+      el.className = '';
+    }
+
+    el.textContent = lines.join('\n');
   });
 }
 

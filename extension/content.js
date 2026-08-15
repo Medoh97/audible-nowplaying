@@ -48,9 +48,25 @@
     return false;
   }
 
+  // Leaves a breadcrumb the popup can show, so "nothing happened" tells you
+  // which half is stuck instead of nothing at all.
+  function note(why) {
+    chrome.storage.local.set({
+      lastScan: { at: new Date().toISOString(), why, url: location.href },
+    });
+  }
+
   function tick(force) {
     const snap = snapshot();
-    if (!snap) return;
+    if (!snap) {
+      note(
+        document.querySelector('audio')
+          ? 'found the page but could not read a title'
+          : 'no player on this page'
+      );
+      return;
+    }
+    note(`reading: ${snap.title}${snap.chapter ? ' - ' + snap.chapter : ''}`);
     if (!force && !meaningfulChange(snap)) return;
 
     lastSent = snap;
@@ -73,6 +89,8 @@
     tick(false);
   }, POLL_MS);
 
+  console.log('[nowplaying] watching', location.href);
+  note('content script loaded');
   wireAudio();
   setTimeout(() => tick(true), 1500);
 
