@@ -74,9 +74,18 @@
     note(`reading: ${snap.title}${snap.chapter ? ' - ' + snap.chapter : ''}`);
     if (!force && !meaningfulChange(snap)) return;
 
-    lastSent = snap;
-    lastSentAt = Date.now();
-    chrome.runtime.sendMessage({ type: 'nowplaying', payload: snap }).catch(() => {});
+    chrome.runtime
+      .sendMessage({ type: 'nowplaying', payload: snap })
+      .then((res) => {
+        // Only call it sent once it really went out. If the worker turned us
+        // down for being too soon, leave lastSent alone and the next tick
+        // offers it again.
+        if (res && res.ok) {
+          lastSent = snap;
+          lastSentAt = Date.now();
+        }
+      })
+      .catch(() => {});
   }
 
   // Catch play/pause the moment it happens instead of waiting for the poll.

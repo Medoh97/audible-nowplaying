@@ -4,10 +4,6 @@
 
 const MIN_COMMIT_GAP_MS = 30_000;
 
-let lastCommitAt = 0;
-let pending = null;
-let timer = null;
-
 async function settings() {
   const s = await chrome.storage.local.get({
     token: '',
@@ -132,32 +128,34 @@ async function commit(snap) {
   });
 }
 
-async function flush() {
-  timer = null;
-  if (!pending) return;
-  const snap = pending;
-  pending = null;
-  lastCommitAt = Date.now();
+// No timers here on purpose. A service worker gets shut down after a few
+// seconds of idle, so anything parked in a setTimeout never runs. Instead we
+// either commit right now, while the worker is awake handling the message, or
+// we decline and let the content script offer it again on its next tick.
+async function handle(snap) {
+  const { lastCommitAt = 0 } = await chrome.storage.local.get({ lastCommitAt: 0 });
+  const since = Date.now() - lastCommitAt;
+  if (since < MIN_COMMIT_GAP_MS) {
+    return { ok: false, throttled: true, retryInMs: MIN_COMMIT_GAP_MS - since };
+  }
 
+  await chrome.storage.local.set({ lastCommitAt: Date.now() });
   try {
     await commit(await enrich(snap));
+    return { ok: true };
   } catch (e) {
     await chrome.storage.local.set({
       lastCommit: { at: new Date().toISOString(), label: String(e.message), ok: false },
     });
     console.error(e);
+    return { ok: false, error: String(e.message) };
   }
 }
 
-function schedule(snap) {
-  pending = snap;
-  if (timer) return;
-  const wait = Math.max(0, MIN_COMMIT_GAP_MS - (Date.now() - lastCommitAt));
-  timer = setTimeout(flush, wait);
-}
-
-chrome.runtime.onMessage.addListener((msg) => {
-  if (msg && msg.type === 'nowplaying') schedule(msg.payload);
+chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
+  if (!msg || msg.type !== 'nowplaying') return;
+  handle(msg.payload).then(sendResponse);
+  return true; // keep the message channel open for the async reply
 });
 
 // --- injection -------------------------------------------------------------

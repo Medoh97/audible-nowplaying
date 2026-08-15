@@ -182,8 +182,11 @@
       return scanForRemaining();
     },
 
+    // Only the actual player counts. Product and library pages have a title but
+    // no chapter or position, and they'd otherwise overwrite good player data
+    // with junk whenever both are open.
     onPlayer() {
-      return /webplayer|\/pd\//i.test(location.href) || !!audioEl();
+      return /webplayer/i.test(location.href) || !!audioEl();
     },
   };
 
