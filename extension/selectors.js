@@ -32,17 +32,30 @@
     return (h ? +h[1] * 3600 : 0) + (mm ? +mm[1] * 60 : 0);
   };
 
-  // Anything on the page that looks like "7h 48m left".
-  const scanForRemaining = () => {
-    const nodes = document.querySelectorAll('span, div, p');
-    for (const n of nodes) {
-      const t = n.textContent && n.textContent.trim();
-      if (t && t.length < 40 && /left|remaining/i.test(t) && /\d/.test(t)) {
-        const secs = wordyToSeconds(t) ?? clockToSeconds(t);
-        if (secs) return secs;
+  // The player shows one row of three readouts under the scrubber:
+  //   "6:21"        how far into the current chapter
+  //   "4h 33m left" how much of the whole book is left
+  //   "-34:51"      how much of the current chapter is left
+  // Read them as a set, by shape, so we don't depend on class names.
+  const readTimeRow = () => {
+    const out = { chapterPos: null, chapterLeft: null, bookLeft: null };
+    const leaves = [...document.querySelectorAll('span, div, p')].filter(
+      (n) => !n.querySelector('*')
+    );
+
+    for (const n of leaves) {
+      const t = (n.textContent || '').trim();
+      if (!t || t.length > 24) continue;
+
+      if (/^-\d{1,2}:\d{2}$|^-(\d+:)?\d{1,2}:\d{2}$/.test(t)) {
+        if (out.chapterLeft == null) out.chapterLeft = clockToSeconds(t);
+      } else if (/^(\d+:)?\d{1,2}:\d{2}$/.test(t)) {
+        if (out.chapterPos == null) out.chapterPos = clockToSeconds(t);
+      } else if (/\d\s*[hm].*(left|remaining)/i.test(t)) {
+        if (out.bookLeft == null) out.bookLeft = wordyToSeconds(t);
       }
     }
-    return null;
+    return out;
   };
 
   const audioEl = () => document.querySelector('audio');
@@ -194,28 +207,30 @@
       return !!btn;
     },
 
-    // Seconds into the current chapter.
+    // Seconds into the whole book. The audio element counts the book, not the
+    // chapter, which is what you want for an overall progress bar.
     positionSec() {
       const a = audioEl();
       if (a && Number.isFinite(a.currentTime) && a.currentTime > 0) {
         return Math.round(a.currentTime);
       }
-      const el = first(['[class*="elapsed" i]', '[data-testid*="elapsed" i]']);
-      return clockToSeconds(text(el));
+      return null;
     },
 
-    chapterRemainingSec() {
+    bookRemainingSec() {
       const a = audioEl();
       if (a && Number.isFinite(a.duration) && a.duration > 0) {
         return Math.round(a.duration - a.currentTime);
       }
-      const el = first(['[class*="remaining" i]', '[data-testid*="remaining" i]']);
-      const t = text(el);
-      return t && t.startsWith('-') ? clockToSeconds(t) : clockToSeconds(t);
+      return readTimeRow().bookLeft;
     },
 
-    bookRemainingSec() {
-      return scanForRemaining();
+    chapterPositionSec() {
+      return readTimeRow().chapterPos;
+    },
+
+    chapterRemainingSec() {
+      return readTimeRow().chapterLeft;
     },
 
     // Only the actual player counts. Product and library pages have a title but

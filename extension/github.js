@@ -30,7 +30,7 @@
   // and it's cleaner than anything scraped out of the DOM.
   async function enrich(snap) {
     if (!snap.asin) return snap;
-    const groups = 'media,product_desc,product_attrs,contributors,series';
+    const groups = 'media,product_desc,product_extended_attrs,product_attrs,contributors,series';
     const url = `https://${apiHostFor(snap.source_url)}/1.0/catalog/products/${
       snap.asin
     }?response_groups=${groups}&image_sizes=500,1024`;

@@ -37,9 +37,10 @@
       cover: D.coverUrl(),
       summary: D.summary(),
       chapter: D.chapter(),
-      position_sec: D.positionSec(),
-      chapter_remaining_sec: D.chapterRemainingSec(),
+      position_sec: D.positionSec(), // into the whole book
       book_remaining_sec: D.bookRemainingSec(),
+      chapter_position_sec: D.chapterPositionSec(),
+      chapter_remaining_sec: D.chapterRemainingSec(),
       speed: D.speed(),
       playing: D.playing(),
       source_url: location.href,

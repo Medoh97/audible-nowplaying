@@ -35,24 +35,37 @@ thousands of useless commits.
 
 ```json
 {
-  "asin": "B00C7VNYCC",
-  "title": "Betrayer: The Horus Heresy, Book 24",
-  "author": "Aaron Dembski-Bowden",
-  "narrator": "Jonathan Keeble",
-  "series": { "name": "The Horus Heresy", "book": 24 },
-  "cover": "https://m.media-amazon.com/images/I/....jpg",
-  "summary": "While the Ultramarines reel from Kor Phaeron's surprise attack on Calth...",
-  "chapter": "Eleven",
-  "position_sec": 1221,
-  "chapter_remaining_sec": 847,
-  "book_remaining_sec": 28080,
-  "runtime_sec": 63000,
+  "asin": "B0725DXWSW",
+  "title": "Rich Dad Poor Dad",
+  "subtitle": "What the Rich Teach Their Kids About Money...",
+  "author": "Robert T. Kiyosaki",
+  "narrator": "Tim Wheeler",
+  "series": { "name": "Rich Dad Series", "book": null },
+  "cover": "https://m.media-amazon.com/images/I/81nPwPrfwpL._SL1024_.jpg",
+  "summary": "Rich Dad Poor Dad is the #1 personal finance book of all time...",
+  "chapter": "Chapter Two: Lesson Two: Why Teach Financial Literacy?",
+  "position_sec": 5825,
+  "book_remaining_sec": 16315,
+  "chapter_position_sec": 381,
+  "chapter_remaining_sec": 2091,
+  "runtime_sec": 22140,
+  "release_date": "2012-06-15",
   "speed": 1.0,
   "playing": true,
-  "source_url": "https://www.audible.com/webplayer?asin=B00C7VNYCC",
-  "updated": "2026-08-15T18:22:04Z"
+  "source_url": "https://www.audible.ca/webplayer?asin=B0725DXWSW...",
+  "updated": "2026-08-15T10:21:04Z"
 }
 ```
+
+Two different clocks, don't mix them up:
+
+- `position_sec` / `book_remaining_sec` / `runtime_sec` — the **whole book**. Use these
+  for an overall progress bar.
+- `chapter_position_sec` / `chapter_remaining_sec` — the **current chapter only**.
+
+Any field can be `null`. `title`, `author`, `narrator`, `series`, `cover`, `summary`
+and `runtime_sec` come from Audible's catalog API and are reliable; `chapter` and the
+chapter clocks are scraped off the player and are the ones that will break first.
 
 The cover is a plain URL on Amazon's CDN — public, no login — so Resonite can
 load it straight into a texture. Nothing is base64'd into the file, which keeps
