@@ -1,0 +1,63 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Audible Now Playing</title>
+    <style>
+      body {
+        font: 14px/1.5 system-ui, sans-serif;
+        margin: 0;
+        padding: 16px;
+        width: 320px;
+        background: #14161a;
+        color: #e8e8e8;
+      }
+      h1 { font-size: 15px; margin: 0 0 12px; }
+      label { display: block; margin: 10px 0 4px; font-size: 12px; color: #9aa0a6; }
+      input {
+        width: 100%;
+        box-sizing: border-box;
+        padding: 6px 8px;
+        border: 1px solid #333;
+        border-radius: 4px;
+        background: #1d2025;
+        color: #e8e8e8;
+      }
+      button {
+        margin-top: 14px;
+        padding: 7px 14px;
+        border: 0;
+        border-radius: 4px;
+        background: #f8991c;
+        color: #14161a;
+        font-weight: 600;
+        cursor: pointer;
+      }
+      #status { margin-top: 12px; font-size: 12px; color: #9aa0a6; min-height: 32px; }
+      .bad { color: #ff6b6b; }
+    </style>
+  </head>
+  <body>
+    <h1>Audible Now Playing</h1>
+
+    <label>GitHub token (fine-grained, Contents: read &amp; write on this one repo)</label>
+    <input id="token" type="password" placeholder="github_pat_..." />
+
+    <label>Owner</label>
+    <input id="owner" />
+
+    <label>Repo</label>
+    <input id="repo" />
+
+    <label>Branch</label>
+    <input id="branch" />
+
+    <label>File path</label>
+    <input id="path" />
+
+    <button id="save">Save</button>
+    <div id="status"></div>
+
+    <script src="options.js"></script>
+  </body>
+</html>

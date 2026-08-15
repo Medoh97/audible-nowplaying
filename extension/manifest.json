@@ -1,0 +1,28 @@
+{
+  "manifest_version": 3,
+  "name": "Audible Now Playing",
+  "version": "0.1.0",
+  "description": "Grabs what you're listening to on Audible and keeps a JSON file on GitHub up to date with it.",
+  "permissions": ["storage", "alarms"],
+  "host_permissions": [
+    "https://*.audible.com/*",
+    "https://api.audible.com/*",
+    "https://api.github.com/*"
+  ],
+  "background": {
+    "service_worker": "background.js",
+    "type": "module"
+  },
+  "content_scripts": [
+    {
+      "matches": ["https://*.audible.com/*"],
+      "js": ["selectors.js", "content.js"],
+      "run_at": "document_idle"
+    }
+  ],
+  "options_page": "options.html",
+  "action": {
+    "default_title": "Audible Now Playing",
+    "default_popup": "options.html"
+  }
+}
