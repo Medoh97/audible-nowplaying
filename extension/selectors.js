@@ -91,16 +91,19 @@
     },
 
     title() {
-      return (
-        text(
-          first([
-            'adbl-player [slot="title"]',
-            '.adblPlayerTitle',
-            'h1.bc-heading',
-            'h1',
-          ])
-        ) || document.title.replace(/\s*\|\s*Audible.*$/i, '').trim() || null
+      const el = text(
+        first(['adbl-player [slot="title"]', '.adblPlayerTitle', 'h1.bc-heading', 'h1'])
       );
+      if (el) return el;
+
+      // The player window's tab title is just "Audible Cloud Player", and the
+      // store page's is padded with marketing. Neither is the book, so hand
+      // back nothing and let the catalog lookup fill it in from the ASIN.
+      const doc = document.title.replace(/\s*\|\s*Audible.*$/i, '').trim();
+      if (!doc) return null;
+      if (/cloud player|audible/i.test(doc)) return null;
+      if (/free with trial|audiobook$/i.test(doc)) return null;
+      return doc;
     },
 
     author() {
@@ -138,8 +141,41 @@
           '[data-testid*="chapter" i]',
         ])
       );
-      // The player shows a bare chapter name with nothing else around it.
-      if (t && t.length < 80) return t;
+      if (t && t.length < 200) return t;
+
+      // Nothing matched by name, so find it by shape instead. The player lays
+      // out the chapter title directly above a row of three timestamps
+      // (elapsed / time left / time remaining). Find that row, walk back up to
+      // the last bit of real text before it.
+      const isTime = (s) => /^-?(\d+:)?\d{1,2}:\d{2}$/.test(s);
+      const stamps = [...document.querySelectorAll('span, div, p')].filter((n) => {
+        const s = n.textContent && n.textContent.trim();
+        return s && isTime(s) && !n.querySelector('*');
+      });
+      if (!stamps.length) return null;
+
+      // Climb to the shared container holding the timestamps.
+      let row = stamps[0].parentElement;
+      for (let i = 0; i < 4 && row; i++) {
+        const inside = stamps.filter((s) => row.contains(s)).length;
+        if (inside >= 2) break;
+        row = row.parentElement;
+      }
+      if (!row) return null;
+
+      // Step backwards through earlier siblings looking for a title-ish string.
+      let node = row;
+      for (let hops = 0; hops < 8 && node; hops++) {
+        let prev = node.previousElementSibling;
+        while (prev) {
+          const s = prev.textContent && prev.textContent.trim().replace(/\s+/g, ' ');
+          if (s && s.length > 2 && s.length < 200 && !isTime(s) && !/left|remaining/i.test(s)) {
+            return s;
+          }
+          prev = prev.previousElementSibling;
+        }
+        node = node.parentElement;
+      }
       return null;
     },
 

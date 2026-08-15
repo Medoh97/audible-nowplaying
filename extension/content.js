@@ -20,7 +20,9 @@
 
     const asin = D.asin();
     const title = D.title();
-    if (!title) return null;
+    // An ASIN alone is enough — the catalog lookup turns it into the real
+    // title, author and cover, which beats anything scraped off the page.
+    if (!title && !asin) return null;
 
     return {
       asin,
